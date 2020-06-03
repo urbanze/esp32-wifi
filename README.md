@@ -1,9 +1,16 @@
 # ESP32 IDF WiFi library
 All functions have comments and are inspired in the Arduino Core.
 
-## Simple example to connect in STATION
+## Simple example to connect in STATION (DHCP)
 ```
 WF wifi;
+wifi.sta_connect("home-wifi", "1234567890");
+```
+
+## Simple example to connect in STATION (Static IP)
+```
+WF wifi;
+wifi.sta_static_ip("192.168.0.110", "192.168.0.1", "255.255.255.0");
 wifi.sta_connect("home-wifi", "1234567890");
 ```
 

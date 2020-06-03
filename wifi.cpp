@@ -59,9 +59,9 @@ esp_err_t WF::event_handler(void *ctx, system_event_t *event)
         ap_sts = event->event_id;
     }
 
+
     
-    
-    
+
     return ESP_OK;
 }
 
@@ -159,6 +159,32 @@ int8_t WF::mode()
 //============STA functions================
 
 /**
+ * @brief Enable use of STATIC IP
+ * 
+ * @param [*ip]: IP. (Eg: "192.168.0.110")
+ * @param [*gateway]: Network gateway. (Eg: "192.168.0.100")
+ * @param [*mask]: Network mask. (Eg: "255.255.255.0")
+ */
+void WF::sta_static_ip(const char *ip, const char *gateway, const char *mask)
+{
+    if (!init()) {return;}
+
+    esp_err_t err;
+    err = tcpip_adapter_dhcpc_stop(TCPIP_ADAPTER_IF_STA);
+    if (err != ESP_OK)
+        {ESP_LOGW(tag, "DHCP stop fail");}
+
+    tcpip_adapter_ip_info_t cfg;
+    cfg.ip.addr = ipaddr_addr(ip);
+    cfg.gw.addr = ipaddr_addr(gateway);
+    cfg.netmask.addr = ipaddr_addr(mask);
+
+    err = tcpip_adapter_set_ip_info(TCPIP_ADAPTER_IF_STA, &cfg);
+    if (err != ESP_OK)
+        {ESP_LOGE(tag, "Static ip fail");}
+}
+
+/**
  * @brief Connect ESP32 in specific WiFi Station.
  * 
  * @param [*ssid]: SSID (name) of station.
@@ -182,7 +208,7 @@ void WF::sta_connect(const char *ssid, const char *pass, int8_t wait=1)
     cfg.sta.channel = 0;
     cfg.sta.listen_interval = 0;
     cfg.sta.sort_method = WIFI_CONNECT_AP_BY_SIGNAL;
-    cfg.sta.threshold.rssi = -100;
+    cfg.sta.threshold.rssi = -127;
     cfg.sta.threshold.authmode = WIFI_AUTH_OPEN;
     
     
@@ -231,8 +257,13 @@ void WF::sta_connect(const char *ssid, const char *pass, int8_t wait=1)
         {
             vTaskDelay(pdMS_TO_TICKS(20));
 
-            if (sta_status() == SYSTEM_EVENT_STA_GOT_IP)
+            if (sta_status() == SYSTEM_EVENT_STA_GOT_IP || sta_dscrsn != 0)
                 {break;}
+        }
+
+        if (sta_status() != SYSTEM_EVENT_STA_GOT_IP)
+        {
+            ESP_LOGW(tag, "DHCP fail");
         }
     }
 }
@@ -292,7 +323,6 @@ int16_t WF::sta_disconnect_reason()
 {
     return sta_dscrsn;
 }
-
 
 
 

@@ -62,6 +62,7 @@ class WF
 		static esp_err_t event_handler(void *ctx, system_event_t *event); ///< Event handler.
 
 		int8_t init(); ///< Init WiFi driver.
+		
 
 	public:
 		//Generic functions
@@ -69,6 +70,7 @@ class WF
 		int8_t mode();
 
 		//STA functions
+		void sta_static_ip(const char *ip, const char *gateway, const char *mask);
 		void sta_connect(const char *ssid, const char *pass, int8_t wait);
 		void sta_disconnect();
 		void sta_reconnect();
@@ -80,8 +82,7 @@ class WF
 		void ap_start(const char *ssid, const char *pass, int8_t channel, int8_t max, int8_t hidden);
 		void ap_stop();
 		int8_t ap_status();
-
-		
+	
 			
 
 };
