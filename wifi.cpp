@@ -255,6 +255,7 @@ void WF::sta_connect(const char *ssid, const char *pass, int8_t wait=1)
     {
         for (int16_t i = 0; i < 1000; i++)
         {
+            esp_task_wdd_reset();
             vTaskDelay(pdMS_TO_TICKS(20));
 
             if (sta_status() == SYSTEM_EVENT_STA_GOT_IP || sta_dscrsn != 0)

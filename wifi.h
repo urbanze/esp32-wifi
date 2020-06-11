@@ -13,6 +13,7 @@
 #include "nvs_flash.h"
 #include "lwip/err.h"
 #include "lwip/sys.h"
+#include <esp_task_wdt.h>
 
 /**
   	@file WiFi.h
