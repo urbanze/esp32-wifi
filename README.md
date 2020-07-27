@@ -1,5 +1,6 @@
 # ESP32 IDF WiFi library
-All functions have comments and are inspired in the Arduino Core.
+* All functions have comments and are inspired in the Arduino Core.
+* WiFi STA does not automatically reconnect, it is necessary to do manually. (Example below)
 
 ## Simple example to connect in STATION (DHCP)
 ```
@@ -28,4 +29,16 @@ Attention: Init STA first, reffers to issue #1.
 WF wifi;
 wifi.sta_connect("home-wifi", "1234567890");
 wifi.ap_start("ESP32", "1234567890");
+```
+
+## Simple example to reconnect in WiFi STA
+```
+WF wifi;
+wifi.sta_connect("home-wifi", "1234567890");
+
+int8_t status = wifi.sta_status();
+if (status != SYSTEM_EVENT_STA_CONNECTED && status != SYSTEM_EVENT_STA_GOT_IP)
+{
+    wifi.sta_reconnect();
+}
 ```
