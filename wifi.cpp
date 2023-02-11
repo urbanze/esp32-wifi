@@ -45,7 +45,7 @@ esp_err_t WF::event_handler(void *ctx, system_event_t *event)
         }
         else if (event->event_id == SYSTEM_EVENT_STA_GOT_IP)
         {
-            snprintf(sta_ip, 16, "%s", ip4addr_ntoa(&event->event_info.got_ip.ip_info.ip));
+            esp_ip4addr_ntoa(&event->event_info.got_ip.ip_info.ip, sta_ip, 16);
         }
         else if (event->event_id == SYSTEM_EVENT_STA_LOST_IP)
         {
@@ -201,8 +201,10 @@ void WF::sta_connect(const char *ssid, const char *pass, int8_t wait=1)
     wifi_config_t cfg;
     memset(&cfg, 0, sizeof(cfg));
 
-    strncpy((char*)cfg.sta.ssid, ssid, 32);
-    strncpy((char*)cfg.sta.password, pass, 64);
+    strncpy((char*)cfg.sta.ssid, ssid, 31);
+    cfg.sta.ssid[31] = '\0';
+    strncpy((char*)cfg.sta.password, pass, 63);
+    cfg.sta.password[63] = '\0';
     cfg.sta.scan_method = WIFI_ALL_CHANNEL_SCAN;
     cfg.sta.bssid_set = 0;
     cfg.sta.channel = 0;
@@ -232,7 +234,7 @@ void WF::sta_connect(const char *ssid, const char *pass, int8_t wait=1)
         return;
     }
 
-    err = esp_wifi_set_config(ESP_IF_WIFI_STA, &cfg);
+    err = esp_wifi_set_config(WIFI_IF_STA, &cfg);
     if (err != ESP_OK)
     {
         ESP_LOGE(tag, "[STA]: Set configs fail [0x%x]", err);
@@ -351,8 +353,10 @@ void WF::ap_start(const char *ssid, const char *pass, int8_t channel=1, int8_t m
     cfg.ap.beacon_interval = 100;
     cfg.ap.channel = channel;
     cfg.ap.max_connection = max;
-    strncpy((char*)cfg.ap.ssid, ssid, 32);
-    strncpy((char*)cfg.ap.password, pass, 64);
+    strncpy((char*)cfg.ap.ssid, ssid, 31);
+    cfg.ap.ssid[31] = '\0';
+    strncpy((char*)cfg.ap.password, pass, 63);
+    cfg.ap.password[63] = '\0';
     cfg.ap.ssid_hidden = hidden;
     cfg.ap.ssid_len = strlen(ssid);
     if (strlen(pass) < 8) {cfg.ap.authmode = WIFI_AUTH_OPEN;}
@@ -377,7 +381,7 @@ void WF::ap_start(const char *ssid, const char *pass, int8_t channel=1, int8_t m
         return;
     }
 
-    err = esp_wifi_set_config(ESP_IF_WIFI_AP, &cfg);
+    err = esp_wifi_set_config(WIFI_IF_AP, &cfg);
     if (err != ESP_OK)
     {
         ESP_LOGE(tag, "[AP]: Set config fail [0x%x]", err);
@@ -405,7 +409,7 @@ void WF::ap_stop()
     wifi_config_t cfg;
     memset(&cfg, 0, sizeof(cfg));
 
-    err = esp_wifi_set_config(ESP_IF_WIFI_AP, &cfg);
+    err = esp_wifi_set_config(WIFI_IF_AP, &cfg);
     if (err != ESP_OK)
     {
         ESP_LOGE(tag, "[AP]: Set config fail [0x%x]", err);
